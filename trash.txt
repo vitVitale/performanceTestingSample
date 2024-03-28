@@ -1,0 +1,47 @@
+
+docker run -it --rm --name pumba \
+--network host -v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba netem --duration 1m delay --time 5000 re2:^my-container$
+
+
+
+docker run -it --rm --name pumba \
+--network host \
+-v /var/run/docker.sock:/var/run/docker.sock gaiaadm/pumba netem --duration 2m delay --time 5000 re2:^stub$
+
+
+pause --duration 1m containers stub
+
+
+
+
+# stop random container once in a 10 minutes
+$ ./pumba --random --interval 10m kill --signal SIGSTOP
+
+
+# every 15 minutes kill `mysql` container and
+# every hour remove containers starting with "hp"
+$ ./pumba --interval 15m kill --signal SIGTERM mysql &
+$ ./pumba --interval 1h rm re2:^hp &
+
+
+# every 30 seconds kill "worker1" and "worker2" containers
+# and every 3 minutes stop "queue" container
+$ ./pumba --interval 30s kill --signal SIGKILL worker1 worker2 &
+$ ./pumba --interval 3m stop queue &
+
+
+# Once in 5 minutes, Pumba will delay for 2 seconds (2000ms)
+# egress traffic for some (randomly chosen) container,
+# named `result...` (matching `^result` regexp) on `eth2`
+# network interface.
+# Pumba will restore normal connectivity after 2 minutes.
+# Print debug trace to STDOUT too.
+$ ./pumba --debug --interval 5m --random netem --duration 2m --interface eth2 delay --amount 2000 re2:^result
+
+
+
+
+
+
+
+
